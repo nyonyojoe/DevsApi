@@ -1,18 +1,23 @@
 const express = require('express');
 const mongoose = require('mongoose');
-import router from './routes/devs'
+const router = require('./routes/devs')
+const devsRoute = require('./routes/devs')
+const logHeaders = require('./middleware/logHeaders.middleware')
+const server = express()
 
-mongoose.connect('mongodb://localhost:27017/DevsDB' , {useNewUrlParser:true});
+const startServer = async ()=>{
+    await mongoose.connect('mongodb://localhost:27017/DevsDB' , {
+        useNewUrlParser:true,
+        useUnifiedTopology: true,
+        useCreateIndex: true
+    });
 
-mongoose.connection.on(
-    'open', ()=>{
-        console.log('connection successful')
-    }
-);
+    server.use('/dev', logHeaders, devsRoute)
+     
 
-express().listen(3000,()=>{
-    console.log('listening on port 3000')
-})
+    server.listen(3000,()=>{
+        console.log('listening on port 3000')
+    })
+}
 
-const devRouter = require('./routes/devs')
-express().use('/devs', devRouter);  
+startServer()
